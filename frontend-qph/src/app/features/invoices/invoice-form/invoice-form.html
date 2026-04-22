@@ -1,0 +1,145 @@
+<div class="form-page">
+  <p-toast />
+
+  <div class="form-header">
+    <p-button
+      icon="pi pi-arrow-left"
+      [text]="true"
+      severity="secondary"
+      (onClick)="goBack()"
+      styleClass="back-btn"
+    />
+    <div class="header-text">
+      <h1>{{ isEdit ? 'Editar Factura #' + invoiceId : 'Nueva Factura' }}</h1>
+      <p>{{ isEdit ? 'Modifica los datos de la factura emitida' : 'Complete el detalle de la venta' }}</p>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+
+      @if (loading) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Cargando datos...</span>
+      </div>
+      } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <div class="form-section">
+          <div class="section-label">
+            <i class="pi pi-user"></i>
+            Información del cliente
+          </div>
+
+          <div class="field-group">
+            <label for="customerName">Nombre del cliente</label>
+            <input
+              pInputText
+              id="customerName"
+              formControlName="customerName"
+              placeholder="Ej: Leandro González"
+              [ngClass]="{'p-invalid': form.get('customerName')?.invalid && form.get('customerName')?.touched}"
+              />
+              @if (form.get('customerName')?.invalid && form.get('customerName')?.touched) {
+      <small class="field-error">
+        <i class="pi pi-exclamation-circle"></i>
+        El nombre es requerido (mínimo 3 caracteres)
+      </small>
+      }
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-label flex justify-content-between align-items-center">
+        <span><i class="pi pi-shopping-cart"></i> Detalle de la venta</span>
+        <p-button
+          label="Agregar Producto"
+          icon="pi pi-plus"
+          [text]="true"
+          size="small"
+          (onClick)="addItem()"
+          type="button"
+          styleClass="add-item-btn"
+        />
+      </div>
+
+      <div formArrayName="items">
+        @for (item of items.controls; track item; let i = $index) {
+      <div [formGroupName]="i" class="fields-row invoice-item-row">
+
+        <div class="field-group product-select">
+          <label>Producto</label>
+          <p-select
+            [options]="products"
+            formControlName="productId"
+            optionLabel="nombre"
+            optionValue="id"
+            placeholder="Seleccionar..."
+            [filter]="true"
+            filterBy="nombre"
+            appendTo="body"
+            [ngClass]="{'p-invalid': item.get('productId')?.invalid && item.get('productId')?.touched}"
+          ></p-select>
+        </div>
+
+        <div class="field-group quantity-input">
+          <label>Cantidad</label>
+          <p-inputNumber
+            formControlName="quantity"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            spinnerMode="horizontal"
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            [min]="1"
+          />
+        </div>
+
+        <div class="field-group item-actions-container">
+          <label class="hidden-label">&nbsp;</label> <p-button
+          icon="pi pi-trash"
+          [text]="true"
+          severity="danger"
+          styleClass="delete-item-btn"
+          (onClick)="removeItem(i)"
+          [disabled]="items.length === 1"
+        />
+        </div>
+      </div>
+      }
+      </div>
+
+      @if (items.invalid && items.touched) {
+      <small class="field-error mt-2">
+        <i class="pi pi-exclamation-circle"></i>
+        Debe completar todos los campos del detalle
+      </small>
+      }
+      </div>
+
+      <div class="form-actions">
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          type="button"
+          (onClick)="goBack()"
+        />
+        <p-button
+          [label]="isEdit ? 'Guardar Cambios' : 'Finalizar Factura'"
+          [icon]="isEdit ? 'pi pi-save' : 'pi pi-check'"
+          type="submit"
+          [loading]="submitting"
+          [disabled]="form.invalid"
+          styleClass="submit-btn"
+        />
+      </div>
+    </form>
+      }
+    </div>
+  </div>
+</div>
